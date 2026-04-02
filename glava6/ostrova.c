@@ -1,4 +1,7 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 typedef struct island {
     char *name;
     char *opens;
@@ -6,29 +9,56 @@ typedef struct island {
     struct island *next;
 } island;
 
+
+island* create(char *name) {
+    island *i = malloc(sizeof(island));
+    i->name = strdup(name);
+    i->opens = "09:00";
+    i->closes = "17:00";
+    i->next = NULL;
+    return i;
+}
+
+void release(island *start) {
+    island *i = start;
+    island *next = NULL;
+    for (; i != NULL; i = next) {
+        next = i->next;    
+        free(i->name);     
+        free(i);           
+    }
+}
+
 void display(island *start) {
     island *i = start;
     for (; i != NULL; i = i->next) {
-        printf("Name: %s open: %s-%s\n", i->name, i->opens, i->closes);
+        printf("Остров: %s \n Время работы: %s-%s\n", i->name, i->opens, i->closes);
     }
 }
 
 int main() {
-   
-    island amity = {"остров Дружбы", "09:00", "17:00", NULL};
-    island craggy = {"Скалистый", "09:00", "17:00", NULL};
-    island isla_nublar = {"Туманный", "09:00", "17:00", NULL};
-    island shutter = {"остров Проклятых", "09:00", "17:00", NULL};
+    island *start = NULL;
+    island *i = NULL;
+    island *next = NULL;
+    char name[80];
 
-    amity.next = &craggy;
-    craggy.next = &isla_nublar;
-    isla_nublar.next = &shutter;
+    printf("Введите названия островов (Ctrl+D для завершения):\n");
 
-    island skull = {"остров Черепа", "09:00", "17:00", NULL};
-    isla_nublar.next = &skull;
-    skull.next = &shutter;
 
-    display(&amity);
+    for (; fgets(name, 80, stdin); i = next) {
+        name[strcspn(name, "\n")] = 0;
+        next = create(name);
+        if (start == NULL) {
+            start = next;
+        }
+        if (i != NULL) {
+            i->next = next;
+        }
+    }
+
+    printf("\n--- Результат ---\n");
+    display(start); 
+    release(start); 
 
     return 0;
 }
